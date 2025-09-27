@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Counter App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+        
+        .counter-display {
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .count {
+            font-size: 6rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            margin: 20px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .count.positive {
+            color: #4ade80;
+        }
+        
+        .count.negative {
+            color: #f87171;
+        }
+        
+        .count.zero {
+            color: #94a3b8;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(3px);
+        }
+        
+        .btn-reset {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background: #d97706;
+        }
+        
+        .btn-decrease {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-decrease:hover {
+            background: #dc2626;
+        }
+        
+        .btn-increase {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-increase:hover {
+            background: #059669;
+        }
+        
+        .btn-custom {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .btn-custom:hover {
+            background: #7c3aed;
+        }
+        
+        .btn-zero {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-zero:hover {
+            background: #2563eb;
+        }
+        
+        .custom-section {
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.15);
+        }
+        
+        .custom-section h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .input-container input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .input-container button {
+            padding: 15px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .input-container button:hover {
+            background: #4f46e5;
+        }
+        
+        .history {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .history h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .history-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-value {
+            font-weight: 600;
+        }
+        
+        .history-time {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            min-width: 120px;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        .persistent-note {
+            text-align: center;
+            padding: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .count {
+                font-size: 4.5rem;
+            }
+            
+            .stats {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Persistent Counter</h1>
+            <p class="subtitle">A counter that remembers its value between sessions</p>
+        </header>
+        
+        <div class="counter-display">
+            <div id="count" class="count zero">0</div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-reset" id="reset">
+                <i class="fas fa-sync-alt"></i> Reset
+            </button>
+            <button class="btn btn-decrease" id="decrease">
+                <i class="fas fa-minus"></i> Decrease
+            </button>
+            <button class="btn btn-increase" id="increase">
+                <i class="fas fa-plus"></i> Increase
+            </button>
+            <button class="btn btn-zero" id="zero">
+                <i class="fas fa-circle"></i> Zero
+            </button>
+        </div>
+        
+        <div class="custom-section">
+            <h2><i class="fas fa-sliders-h"></i> Custom Count</h2>
+            <div class="input-group">
+                <div class="input-container">
+                    <input type="number" id="custom-value" placeholder="Enter custom value" value="1">
+                    <button id="set-value">Set Value</button>
+                </div>
+                <div class="input-container">
+                    <input type="number" id="step-value" placeholder="Step value" value="1">
+                    <button id="set-step">Set Step</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="total-increases">0</div>
+                <div class="stat-label">Increases</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="total-decreases">0</div>
+                <div class="stat-label">Decreases</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="max-value">0</div>
+                <div class="stat-label">Max Value</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="min-value">0</div>
+                <div class="stat-label">Min Value</div>
+            </div>
+        </div>
+        
+        <div class="history">
+            <h2><i class="fas fa-history"></i> History</h2>
+            <div class="history-list" id="history-list">
+                <!-- History items will be added here -->
+            </div>
+        </div>
+        
+        <div class="persistent-note">
+            <i class="fas fa-info-circle"></i> Your counter value is automatically saved and will persist between browser sessions
+        </div>
+    </div>
+
+    <script>
+        // Counter state with persistent storage
+        let count = 0;
+        let step = 1;
+        let totalIncreases = 0;
+        let totalDecreases = 0;
+        let maxValue = 0;
+        let minValue = 0;
+        let history = [];
+        
+        // Load state from localStorage
+        function loadState() {
+            const savedState = localStorage.getItem('counterState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                count = state.count || 0;
+                step = state.step || 1;
+                totalIncreases = state.totalIncreases || 0;
+                totalDecreases = state.totalDecreases || 0;
+                maxValue = state.maxValue || 0;
+                minValue = state.minValue || 0;
+                history = state.history || [];
+            }
+        }
+        
+        // Save state to localStorage
+        function saveState() {
+            const state = {
+                count,
+                step,
+                totalIncreases,
+                totalDecreases,
+                maxValue,
+                minValue,
+                history
+            };
+            localStorage.setItem('counterState', JSON.stringify(state));
+        }
+        
+        // DOM elements
+        const countElement = document.getElementById('count');
+        const resetBtn = document.getElementById('reset');
+        const decreaseBtn = document.getElementById('decrease');
+        const increaseBtn = document.getElementById('increase');
+        const zeroBtn = document.getElementById('zero');
+        const setValueBtn = document.getElementById('set-value');
+        const setStepBtn = document.getElementById('set-step');
+        const customValueInput = document.getElementById('custom-value');
+        const stepValueInput = document.getElementById('step-value');
+        const historyList = document.getElementById('history-list');
+        const totalIncreasesElement = document.getElementById('total-increases');
+        const totalDecreasesElement = document.getElementById('total-decreases');
+        const maxValueElement = document.getElementById('max-value');
+        const minValueElement = document.getElementById('min-value');
+        
+        // Update the counter display
+        function updateDisplay() {
+            countElement.textContent = count;
+            
+            // Add class based on value
+            countElement.className = 'count';
+            if (count > 0) {
+                countElement.classList.add('positive');
+            } else if (count < 0) {
+                countElement.classList.add('negative');
+            } else {
+                countElement.classList.add('zero');
+            }
+            
+            // Add pulse animation
+            countElement.classList.add('pulse');
+            setTimeout(() => {
+                countElement.classList.remove('pulse');
+            }, 500);
+            
+            // Update stats
+            totalIncreasesElement.textContent = totalIncreases;
+            totalDecreasesElement.textContent = totalDecreases;
+            maxValueElement.textContent = maxValue;
+            minValueElement.textContent = minValue;
+        }
+        
+        // Add to history
+        function addToHistory(action, value) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            history.unshift({
+                action,
+                value,
+                time: timeString
+            });
+            
+            // Keep only last 10 history items
+            if (history.length > 10) {
+                history.pop();
+            }
+            
+            updateHistoryDisplay();
+        }
+        
+        // Update history display
+        function updateHistoryDisplay() {
+            historyList.innerHTML = '';
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                let actionText = '';
+                let actionClass = '';
+                
+                switch(item.action) {
+                    case 'increase':
+                        actionText = `+${step}`;
+                        actionClass = 'positive';
+                        break;
+                    case 'decrease':
+                        actionText = `-${step}`;
+                        actionClass = 'negative';
+                        break;
+                    case 'set':
+                        actionText = `Set to ${item.value}`;
+                        actionClass = 'zero';
+                        break;
+                    case 'reset':
+                        actionText = 'Reset to 0';
+                        actionClass = 'zero';
+                        break;
+                    case 'zero':
+                        actionText = 'Zeroed';
+                        actionClass = 'zero';
+                        break;
+                }
+                
+                historyItem.innerHTML = `
+                    <span class="history-value ${actionClass}">${actionText}</span>
+                    <span class="history-time">${item.time}</span>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Initialize
+        loadState();
+        updateDisplay();
+        updateHistoryDisplay();
+        
+        // Event listeners
+        resetBtn.addEventListener('click', () => {
+            count = 0;
+            updateDisplay();
+            addToHistory('reset', 0);
+            saveState();
+        });
+        
+        decreaseBtn.addEventListener('click', () => {
+            count -= step;
+            totalDecreases++;
+            
+            // Update max/min values
+            if (count > maxValue) maxValue = count;
+            if (count < minValue) minValue = count;
+            
+            updateDisplay();
+            addToHistory('decrease', count);
+            saveState();
+        });
+        
+        increaseBtn.addEventListener('click', () => {
+            count += step;
+            totalIncreases++;
+            
+            // Update max/min values
+            if (count > maxValue) maxValue = count;
+            if (count < minValue) minValue = count;
+            
+            updateDisplay();
+            addToHistory('increase', count);
+            saveState();
+        });
+        
+        zeroBtn.addEventListener('click', () => {
+            count = 0;
+            updateDisplay();
+            addToHistory('zero', 0);
+            saveState();
+        });
+        
+        setValueBtn.addEventListener('click', () => {
+            const value = parseInt(customValueInput.value);
+            if (!isNaN(value)) {
+                count = value;
+                
+                // Update max/min values
+                if (count > maxValue) maxValue = count;
+                if (count < minValue) minValue = count;
+                
+                updateDisplay();
+                addToHistory('set', value);
+                saveState();
+            }
+        });
+        
+        setStepBtn.addEventListener('click', () => {
+            const value = parseInt(stepValueInput.value);
+            if (!isNaN(value) && value > 0) {
+                step = value;
+                saveState();
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                count += step;
+                totalIncreases++;
+                
+                // Update max/min values
+                if (count > maxValue) maxValue = count;
+                if (count < minValue) minValue = count;
+                
+                updateDisplay();
+                addToHistory('increase', count);
+                saveState();
+            } else if (e.key === 'ArrowDown') {
+                count -= step;
+                totalDecreases++;
+                
+                // Update max/min values
+                if (count > maxValue) maxValue = count;
+                if (count < minValue) minValue = count;
+                
+                updateDisplay();
+                addToHistory('decrease', count);
+                saveState();
+            } else if (e.key === '0') {
+                count = 0;
+                updateDisplay();
+                addToHistory('zero', 0);
+                saveState();
+            } else if (e.key === 'r' || e.key === 'R') {
+                count = 0;
+                updateDisplay();
+                addToHistory('reset', 0);
+                saveState();
+            }
+        });
+        
+        // Save state before page unload
+        window.addEventListener('beforeunload', saveState);
+    </script>
+</body>
+</html>
